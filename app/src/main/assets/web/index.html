@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="description" content="灵魂序章魂环进化AI助手 - 帮助玩家在魂环进化玩法中获得最佳策略，智能预测最优合成方向">
+    <meta name="keywords" content="灵魂序章,魂环进化,微信小游戏,游戏攻略,AI预测,最优解,游戏辅助工具">
+    <meta name="author" content="灵魂序章游戏工具">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="灵魂序章魂环进化AI助手">
+    <meta property="og:description" content="灵魂序章微信小游戏魂环进化玩法AI预测工具，帮助玩家获得最优合成策略">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#1b4747">
+    <link rel="icon" href="data:,">
+    <title>灵魂序章 | 魂环进化AI预测助手</title>
+    <style>
+        body {
+            padding: 20px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #1b4747;
+            text-align: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #e8d5b5;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            color: #fff;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0 auto 20px;
+            background: none;
+            padding: 0;
+            backdrop-filter: none;
+            border-radius: 0;
+            text-align: center;
+        }
+
+        p {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 15px auto;
+            padding: 15px;
+            max-width: 400px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            margin: 15px auto;
+            width: 320px;
+            padding: 10px;
+            background: #1d5959;
+            border-radius: 12px;
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+
+        .cell {
+            width: 70px;
+            height: 70px;
+            background: #2d8181;
+            background-size: 85% 85%;
+            background-repeat: no-repeat;
+            background-position: center;
+            border-radius: 4px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 4px;
+            font-size: 14px;
+        }
+
+        .cell:hover {
+            background-color: #339393;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        button {
+            padding: 10px 0;
+            width: 140px;
+            font-size: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        button:disabled {
+            background: #7a9e7a;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        button:active:not(:disabled) {
+            opacity: 0.9;
+        }
+
+        #dir {
+            font-weight: bold;
+            font-size: 32px;
+            color: #ff6b6b;
+            margin: 10px;
+        }
+
+        .tips {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.8;
+            margin-top: 20px;
+            margin-bottom: 0;
+        }
+
+        .disclaimer {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.45);
+            margin-top: 8px;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+
+
+
+
+
+
+
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://777.ga",
+      "@type": "WebApplication",
+      "name": "灵魂序章魂环进化AI助手",
+      "description": "专为灵魂序章微信小游戏魂环进化玩法开发的AI预测工具",
+      "applicationCategory": "GameStrategy",
+      "operatingSystem": "Web Browser",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" },
+      "genre": ["Game Strategy", "AI Tool"],
+      "gamePlatform": "WeChat Mini Game"
+    }
+    </script>
+</head>
+<body>
+    <main>
+        <header>
+            <h1>灵魂序章 - 魂环进化AI预测</h1>
+            <p class="subtitle">智能分析魂环局势，为你推荐最优合成方向</p>
+        </header>
+        <p>最优移动方向：<span id="dir">无</span></p>
+        <div class="game-container">
+            <div id="grid">
+                <div class="cell n" id="cell_0_0"></div>
+                <div class="cell n" id="cell_0_1"></div>
+                <div class="cell n" id="cell_0_2"></div>
+                <div class="cell n" id="cell_0_3"></div>
+                <div class="cell n" id="cell_1_0"></div>
+                <div class="cell n" id="cell_1_1"></div>
+                <div class="cell n" id="cell_1_2"></div>
+                <div class="cell n" id="cell_1_3"></div>
+                <div class="cell n" id="cell_2_0"></div>
+                <div class="cell n" id="cell_2_1"></div>
+                <div class="cell n" id="cell_2_2"></div>
+                <div class="cell n" id="cell_2_3"></div>
+                <div class="cell n" id="cell_3_0"></div>
+                <div class="cell n" id="cell_3_1"></div>
+                <div class="cell n" id="cell_3_2"></div>
+                <div class="cell n" id="cell_3_3"></div>
+            </div>
+        </div>
+        <div class="controls">
+            <div class="controls-row">
+                <button id="undo-step" disabled>上一步</button>
+                <button id="ai-step">预测下一步</button>
+            </div>
+            <div class="controls-row">
+                <button id="clear">全部清空</button>
+            </div>
+        </div>
+        <footer>
+            <p class="tips">💡 点击方格<strong>左上角</strong>降级，点击其他区域升级<br>
+            误操作？<strong>上一步</strong>按钮最多可回退 3 步</p>
+            <p class="disclaimer">本工具仅供《灵魂序章》玩家参考使用，与官方游戏无关</p>
+        </footer>
+    </main>
+
+    <!-- 二次确认弹窗 -->
+    <div id="confirm-modal" style="
+        display:none; position:fixed; inset:0;
+        background:rgba(0,0,0,0.55); z-index:9999;
+        align-items:center; justify-content:center;">
+        <div style="
+            background:#1d5959; border-radius:16px;
+            padding:28px 32px; text-align:center;
+            max-width:280px; width:85%;
+            box-shadow:0 8px 32px rgba(0,0,0,0.4);
+            border:1px solid rgba(255,255,255,0.15);">
+            <p style="margin:0 0 20px; font-size:17px; color:#fff; line-height:1.5;">
+                确定清空全部格子？<br>
+                <span style="font-size:13px;color:rgba(255,255,255,0.6);">此操作不可恢复</span>
+            </p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+                <button id="confirm-cancel" style="width:100px;background:#555;">取消</button>
+                <button id="confirm-ok"     style="width:100px;background:#e05a5a;">确认清空</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 方向标签
+        const directionText = ['上', '右', '下', '左'];
+
+        // Grid 类
+        class Grid {
+            constructor(size, previousState) {
+                this.size = size;
+                this.cells = previousState ? this.fromState(previousState) : this.empty();
+            }
+            empty() {
+                const cells = [];
+                for (let x = 0; x < this.size; x++) {
+                    const row = cells[x] = [];
+                    for (let y = 0; y < this.size; y++) {
+                        row.push(null);
+                    }
+                }
+                return cells;
+            }
+            fromState(state) {
+                const cells = [];
+                for (let x = 0; x < this.size; x++) {
+                    const row = cells[x] = [];
+                    for (let y = 0; y < this.size; y++) {
+                        const tile = state[x][y];
+                        row.push(tile ? new Tile(tile.position, tile.value) : null);
+                    }
+                }
+                return cells;
+            }
+            availableCells() {
+                const cells = [];
+                this.eachCell((x, y, tile) => {
+                    if (!tile) cells.push({ x, y });
+                });
+                return cells;
+            }
+            eachCell(callback) {
+                for (let x = 0; x < this.size; x++) {
+                    for (let y = 0; y < this.size; y++) {
+                        callback(x, y, this.cells[x][y]);
+                    }
+                }
+            }
+            cellsAvailable() {
+                return !!this.availableCells().length;
+            }
+            cellAvailable(pos) {
+                return !this.cellOccupied(pos);
+            }
+            cellOccupied(pos) {
+                return !!this.cellContent(pos);
+            }
+            cellContent(pos) {
+                return this.withinBounds(pos) ? this.cells[pos.x][pos.y] : null;
+            }
+            insertTile(tile) {
+                this.cells[tile.x][tile.y] = tile;
+            }
+            removeTile(pos) {
+                this.cells[pos.x][pos.y] = null;
+            }
+            withinBounds(pos) {
+                return pos.x >= 0 && pos.x < this.size && pos.y >= 0 && pos.y < this.size;
+            }
+            serialize() {
+                const cells = [];
+                for (let x = 0; x < this.size; x++) {
+                    const row = cells[x] = [];
+                    for (let y = 0; y < this.size; y++) {
+                        row.push(this.cells[x][y] ? this.cells[x][y].serialize() : null);
+                    }
+                }
+                return { size: this.size, cells };
+            }
+        }
+
+        // Tile 类
+        class Tile {
+            constructor(position, value) {
+                this.x = position.x;
+                this.y = position.y;
+                this.value = value || 2;
+                this.previousPosition = null;
+                this.mergedFrom = null;
+            }
+            savePosition() {
+                this.previousPosition = { x: this.x, y: this.y };
+            }
+            updatePosition(position) {
+                this.x = position.x;
+                this.y = position.y;
+            }
+            serialize() {
+                return { position: { x: this.x, y: this.y }, value: this.value };
+            }
+        }
+
+        // LocalStorageManager 类
+        class LocalStorageManager {
+            constructor() {
+                this.gameStateKey = "gameState";
+                this.storage = this.localStorageSupported() ? window.localStorage : {
+                    _data: {},
+                    setItem: (id, val) => (this._data[id] = String(val)),
+                    getItem: id => this._data[id],
+                    removeItem: id => delete this._data[id],
+                    clear: () => (this._data = {})
+                };
+            }
+            localStorageSupported() {
+                try {
+                    const test = "test";
+                    window.localStorage.setItem(test, "1");
+                    window.localStorage.removeItem(test);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+            getGameState() {
+                const state = this.storage.getItem(this.gameStateKey);
+                return state ? JSON.parse(state) : null;
+            }
+            setGameState(state) {
+                this.storage.setItem(this.gameStateKey, JSON.stringify(state));
+            }
+            clearGameState() {
+                this.storage.removeItem(this.gameStateKey);
+            }
+        }
+
+        // GameManager 类
+        class GameManager {
+            constructor(size) {
+                this.size = size;
+                this.storageManager = new LocalStorageManager();
+                this.grid = new Grid(this.size);
+                this.score = 0;
+                this._history = [];   // 最多保存 3 步历史
+                this.setup();
+            }
+            setup() {
+                let previousState = null;
+                try {
+                    const raw = this.storageManager.getGameState();
+                    // 验证数据格式：必须有 grid.size 和 grid.cells 数组
+                    if (raw &&
+                        raw.grid &&
+                        typeof raw.grid.size === 'number' &&
+                        Array.isArray(raw.grid.cells) &&
+                        raw.grid.cells.length === raw.grid.size) {
+                        previousState = raw;
+                    } else if (raw) {
+                        // 格式不兼容（旧版数据），清除
+                        this.storageManager.clearGameState();
+                    }
+                } catch (e) {
+                    this.storageManager.clearGameState();
+                }
+                if (previousState) {
+                    try {
+                        this.grid = new Grid(previousState.grid.size, previousState.grid.cells);
+                        this.score = previousState.score || 0;
+                    } catch (e) {
+                        // 重建失败，重置
+                        this.storageManager.clearGameState();
+                        this.grid = new Grid(this.size);
+                        this.score = 0;
+                    }
+                } else {
+                    this.grid = new Grid(this.size);
+                    this.score = 0;
+                }
+                this.updateGridDisplay();
+            }
+            actuate() {
+                this.storageManager.setGameState(this.serialize());
+                this.updateGridDisplay();
+            }
+            serialize() {
+                return {
+                    grid: this.grid.serialize(),
+                    score: this.score
+                };
+            }
+            updateGridDisplay() {
+                const cells = document.querySelectorAll(".cell");
+                this.grid.eachCell((x, y, tile) => {
+                    const cell = document.getElementById(`cell_${x}_${y}`);
+                    if (tile) {
+                        const displayValue = Math.log2(tile.value);
+                        cell.textContent = displayValue;
+                        cell.style.backgroundImage = `url(./static/Image/${displayValue}.png)`;
+                        cell.classList.remove("n");
+                    } else {
+                        cell.textContent = '';
+                        cell.style.backgroundImage = '';
+                        cell.classList.add("n");
+                    }
+                });
+            }
+            move(direction) {
+                let moved = false;
+                const vector = this.getVector(direction);
+                const traversals = this.buildTraversals(vector);
+                this._savedSnapshot = JSON.parse(JSON.stringify(this.serialize()));
+                this.prepareTiles();
+
+                traversals.x.forEach(x => {
+                    traversals.y.forEach(y => {
+                        const cell = { x, y };
+                        const tile = this.grid.cellContent(cell);
+                        if (tile) {
+                            const positions = this.findFarthestPosition(cell, vector);
+                            const next = this.grid.cellContent(positions.next);
+                            if (next && next.value === tile.value && !next.mergedFrom && Math.log2(tile.value) < 11) {
+                                const merged = new Tile(positions.next, tile.value * 2);
+                                merged.mergedFrom = [tile, next];
+                                this.grid.insertTile(merged);
+                                this.grid.removeTile(tile);
+                                tile.updatePosition(positions.next);
+                                this.score += merged.value;
+                                moved = true;
+                            } else {
+                                this.moveTile(tile, positions.farthest);
+                            }
+                            if (!this.positionsEqual(cell, tile)) {
+                                moved = true;
+                            }
+                        }
+                    });
+                });
+                if (moved) {
+                    if (this._history.length >= 3) this._history.shift();
+                    this._history.push(this._savedSnapshot);
+                    this._updateUndoButton();
+                    this.actuate();
+                }
+                return moved;
+            }
+            undo() {
+                if (this._history.length === 0) return;
+                const snap = this._history.pop();
+                this.grid = new Grid(snap.grid.size, snap.grid.cells);
+                this.score = snap.score || 0;
+                this.storageManager.setGameState(snap);
+                this.updateGridDisplay();
+                document.getElementById("dir").textContent = "已回退";
+                this._updateUndoButton();
+            }
+            _updateUndoButton() {
+                const btn = document.getElementById("undo-step");
+                if (!btn) return;
+                const n = this._history.length;
+                btn.disabled = n === 0;
+                btn.textContent = "上一步";
+                btn.title = n > 0 ? `可回退 ${n} 步` : "上一步";
+            }
+            // ── Expectimax AI（纯 JS 查找表，无需 WASM）──────────────────
+            //
+            // 棋盘编码：Uint16Array(4)，每行4个 nibble
+            //   nibble j = log2(cells[j][i])，0 表示空格
+            //   方向：0=上 1=右 2=下 3=左
+
+            _buildMoveTables() {
+                if (this._MOVE_LEFT) return;
+                this._MOVE_LEFT  = new Uint16Array(65536);
+                this._MOVE_RIGHT = new Uint16Array(65536);
+                const slide = t => {
+                    t = t.filter(x => x !== 0);
+                    const r = [];
+                    for (let i = 0; i < t.length;) {
+                        if (i + 1 < t.length && t[i] === t[i + 1] && t[i] < 11) { r.push(t[i] + 1); i += 2; }
+                        else { r.push(t[i]); i++; }
+                    }
+                    while (r.length < 4) r.push(0);
+                    return r;
+                };
+                for (let row = 0; row < 65536; row++) {
+                    const t = [(row>>12)&0xf,(row>>8)&0xf,(row>>4)&0xf,row&0xf];
+                    const a = slide(t);
+                    this._MOVE_LEFT[row]  = (a[0]<<12)|(a[1]<<8)|(a[2]<<4)|a[3];
+                    const b = slide([t[3],t[2],t[1],t[0]]);
+                    this._MOVE_RIGHT[row] = (b[3]<<12)|(b[2]<<8)|(b[1]<<4)|b[0];
+                }
+            }
+
+            _encodeBoard() {
+                const b = new Uint16Array(4);
+                for (let i = 0; i < 4; i++)          // row y
+                    for (let j = 0; j < 4; j++) {    // col x
+                        const tile = this.grid.cells[j][i];
+                        if (tile) b[i] |= (Math.log2(tile.value) & 0xf) << (12 - 4 * j);
+                    }
+                return b;
+            }
+
+            _transpose(b) {
+                const r = new Uint16Array(4);
+                for (let i = 0; i < 4; i++)
+                    for (let j = 0; j < 4; j++) {
+                        const n = (b[i] >> (12 - 4*j)) & 0xf;
+                        r[j] |= n << (12 - 4*i);
+                    }
+                return r;
+            }
+
+            _applyMove(b, dir) {
+                const r = new Uint16Array(4);
+                if (dir === 3) { for (let i=0;i<4;i++) r[i]=this._MOVE_LEFT[b[i]]; return r; }
+                if (dir === 1) { for (let i=0;i<4;i++) r[i]=this._MOVE_RIGHT[b[i]]; return r; }
+                const t = this._transpose(b);
+                if (dir === 0) for (let i=0;i<4;i++) t[i]=this._MOVE_LEFT[t[i]];
+                else           for (let i=0;i<4;i++) t[i]=this._MOVE_RIGHT[t[i]];
+                return this._transpose(t);
+            }
+
+            _boardsEqual(a, b) { return a[0]===b[0]&&a[1]===b[1]&&a[2]===b[2]&&a[3]===b[3]; }
+
+            _getEmpty(b) {
+                const e = [];
+                for (let r=0;r<4;r++) for (let c=0;c<4;c++)
+                    if (((b[r]>>(12-4*c))&0xf)===0) e.push(r*4+c);
+                return e;
+            }
+
+            _setCell(b, pos, v) {
+                const r=new Uint16Array(b), row=pos>>2, col=pos&3, s=12-4*col;
+                r[row]=(r[row]&~(0xf<<s))|((v&0xf)<<s);
+                return r;
+            }
+
+            _evaluate(b) {
+                let empty=0, mono=0, smooth=0, max=0;
+                for (let r=0;r<4;r++) for (let c=0;c<4;c++) {
+                    const v=(b[r]>>(12-4*c))&0xf;
+                    if (!v){empty++;continue;}
+                    if (v>max) max=v;
+                    if (c<3){const nb=(b[r]>>(12-4*(c+1)))&0xf; if(nb) smooth-=Math.abs(v-nb);}
+                    if (r<3){const nb=(b[r+1]>>(12-4*c))&0xf;   if(nb) smooth-=Math.abs(v-nb);}
+                }
+                for (let r=0;r<4;r++){let inc=0,dec=0;for(let c=0;c<3;c++){const v1=(b[r]>>(12-4*c))&0xf,v2=(b[r]>>(12-4*(c+1)))&0xf;if(v1>v2)dec+=v2-v1;else if(v1<v2)inc+=v1-v2;}mono+=Math.max(inc,dec);}
+                for (let c=0;c<4;c++){let inc=0,dec=0;for(let r=0;r<3;r++){const v1=(b[r]>>(12-4*c))&0xf,v2=(b[r+1]>>(12-4*c))&0xf;if(v1>v2)dec+=v2-v1;else if(v1<v2)inc+=v1-v2;}mono+=Math.max(inc,dec);}
+                return 270*Math.log(empty+1) + 47*mono + smooth + 10000*max;
+            }
+
+            _expectimax(b, depth, isChance) {
+                if (depth===0) return this._evaluate(b);
+                if (isChance) {
+                    const e = this._getEmpty(b);
+                    if (!e.length) return this._evaluate(b);
+                    let t = 0;
+                    for (const p of e) {
+                        t += 0.9*this._expectimax(this._setCell(b,p,1), depth-1, false);
+                        t += 0.1*this._expectimax(this._setCell(b,p,2), depth-1, false);
+                    }
+                    return t / e.length;
+                } else {
+                    let best=-Infinity;
+                    for (let d=0;d<4;d++){
+                        const nb=this._applyMove(b,d);
+                        if (!this._boardsEqual(nb,b)){
+                            const s=this._expectimax(nb,depth-1,true);
+                            if(s>best) best=s;
+                        }
+                    }
+                    return best===-Infinity ? this._evaluate(b) : best;
+                }
+            }
+
+            getBestMove() {
+                this._buildMoveTables();
+                const board = this._encodeBoard();
+                const empty = this._getEmpty(board).length;
+                const depth = empty<=2?6:empty<=4?5:empty<=7?4:3;
+
+                let best=-Infinity, bestDir=-1;
+                for (let d=0;d<4;d++){
+                    const nb=this._applyMove(board,d);
+                    if (!this._boardsEqual(nb,board)){
+                        const s=this._expectimax(nb,depth-1,true);
+                        if(s>best){best=s;bestDir=d;}
+                    }
+                }
+
+                if (bestDir===-1) {
+                    document.getElementById("dir").textContent = "无法移动";
+                    return null;
+                }
+                document.getElementById("dir").textContent = directionText[bestDir];
+                return bestDir;
+            }
+
+            executeBestMove() {
+                const bestDirection = this.getBestMove();
+                if (bestDirection !== null) {
+                    this.move(bestDirection);
+                }
+            }
+            getVector(direction) {
+                return [
+                    { x: 0, y: -1 }, // 上
+                    { x: 1, y: 0 },  // 右
+                    { x: 0, y: 1 },  // 下
+                    { x: -1, y: 0 }  // 左
+                ][direction];
+            }
+            buildTraversals(vector) {
+                const traversals = { x: [], y: [] };
+                for (let pos = 0; pos < this.size; pos++) {
+                    traversals.x.push(pos);
+                    traversals.y.push(pos);
+                }
+                if (vector.x === 1) traversals.x = traversals.x.reverse();
+                if (vector.y === 1) traversals.y = traversals.y.reverse();
+                return traversals;
+            }
+            findFarthestPosition(cell, vector) {
+                let previous;
+                do {
+                    previous = cell;
+                    cell = { x: previous.x + vector.x, y: previous.y + vector.y };
+                } while (this.grid.withinBounds(cell) && this.grid.cellAvailable(cell));
+                return { farthest: previous, next: cell };
+            }
+            prepareTiles() {
+                this.grid.eachCell((x, y, tile) => {
+                    if (tile) {
+                        tile.mergedFrom = null;
+                        tile.savePosition();
+                    }
+                });
+            }
+            moveTile(tile, cell) {
+                this.grid.cells[tile.x][tile.y] = null;
+                this.grid.cells[cell.x][cell.y] = tile;
+                tile.updatePosition(cell);
+            }
+            positionsEqual(first, second) {
+                return first.x === second.x && first.y === second.y;
+            }
+        }
+
+        // 初始化游戏
+        const gameManager = new GameManager(4);
+
+        // 网格交互：点击增减格子值
+        const cells = document.querySelectorAll(".cell");
+        cells.forEach(cell => {
+            cell.addEventListener("click", e => {
+                e.preventDefault();
+                const rect = cell.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+                const isTopLeft = clickX <= rect.width / 2 && clickY <= rect.height / 2;
+                let value = parseInt(cell.textContent) || 0;
+                if (isTopLeft) {
+                    value--; // 左上角点击减少
+                } else {
+                    value++; // 其他区域点击增加
+                }
+                if (value < 0) value = 0;
+                if (value > 11) value = 11;
+                const [_, x, y] = cell.id.match(/cell_(\d)_(\d)/);
+                if (value !== 0) {
+                    cell.textContent = value;
+                    cell.style.backgroundImage = `url(./static/Image/${value}.png)`;
+                    cell.classList.remove("n");
+                    gameManager.grid.cells[x][y] = new Tile({ x: parseInt(x), y: parseInt(y) }, Math.pow(2, value));
+                } else {
+                    cell.textContent = '';
+                    cell.style.backgroundImage = '';
+                    cell.classList.add("n");
+                    gameManager.grid.cells[x][y] = null;
+                }
+                gameManager.storageManager.setGameState(gameManager.serialize());
+                gameManager.updateGridDisplay();
+            });
+            // 支持触摸事件
+            cell.addEventListener("touchstart", e => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = cell.getBoundingClientRect();
+                const clickX = touch.clientX - rect.left;
+                const clickY = touch.clientY - rect.top;
+                const isTopLeft = clickX <= rect.width / 2 && clickY <= rect.height / 2;
+                let value = parseInt(cell.textContent) || 0;
+                if (isTopLeft) {
+                    value--;
+                } else {
+                    value++;
+                }
+                if (value < 0) value = 0;
+                if (value > 11) value = 11;
+                const [_, x, y] = cell.id.match(/cell_(\d)_(\d)/);
+                if (value !== 0) {
+                    cell.textContent = value;
+                    cell.style.backgroundImage = `url(./static/Image/${value}.png)`;
+                    cell.classList.remove("n");
+                    gameManager.grid.cells[x][y] = new Tile({ x: parseInt(x), y: parseInt(y) }, Math.pow(2, value));
+                } else {
+                    cell.textContent = '';
+                    cell.style.backgroundImage = '';
+                    cell.classList.add("n");
+                    gameManager.grid.cells[x][y] = null;
+                }
+                gameManager.storageManager.setGameState(gameManager.serialize());
+                gameManager.updateGridDisplay();
+            });
+        });
+
+        // 清空按钮
+        const modal = document.getElementById("confirm-modal");
+        const doClear = () => {
+            gameManager._history = [];
+            gameManager._updateUndoButton();
+            gameManager.grid = new Grid(4);
+            gameManager.score = 0;
+            gameManager.storageManager.clearGameState();
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.style.backgroundImage = '';
+                cell.classList.add("n");
+            });
+            document.getElementById("dir").textContent = "无";
+            gameManager.updateGridDisplay();
+        };
+
+        document.getElementById("clear").addEventListener("click", () => {
+            modal.style.display = "flex";
+        });
+        document.getElementById("confirm-cancel").addEventListener("click", () => {
+            modal.style.display = "none";
+        });
+        document.getElementById("confirm-ok").addEventListener("click", () => {
+            modal.style.display = "none";
+            doClear();
+        });
+        // 点击遮罩层关闭
+        modal.addEventListener("click", e => {
+            if (e.target === modal) modal.style.display = "none";
+        });
+
+        // 回退上一步
+        document.getElementById("undo-step").addEventListener("click", () => {
+            gameManager.undo();
+        });
+
+        // AI 预测并移动
+        document.getElementById("ai-step").addEventListener("click", () => {
+            gameManager.executeBestMove();
+        });
+    </script>
+</body>
+</html>
